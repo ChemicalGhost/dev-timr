@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Clock Tracker</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --accent: #38bdf8;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      width: 300px;
+    }
+
+    h1 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-sub);
+      margin-top: 0;
+    }
+
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 1rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+      border-top: 1px solid #334155;
+      padding-top: 1rem;
+    }
+
+    .stat-item h2 {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .stat-item p {
+      font-size: 1.2rem;
+      margin: 0.5rem 0 0;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Current Session</h1>
+    <div id="current" class="timer-display">00:00:00</div>
+    
+    <div class="stats-grid">
+      <div class="stat-item">
+        <h2>Today's Total</h2>
+        <p id="today">00:00:00</p>
+      </div>
+      <div class="stat-item">
+        <h2>All Time</h2>
+        <p id="total">00:00:00</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      
+      const pad = (n) => n.toString().padStart(2, '0');
+      if (hours > 0) {
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      }
+      return `${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    const currentEl = document.getElementById('current');
+    const todayEl = document.getElementById('today');
+    const totalEl = document.getElementById('total');
+
+    const evtSource = new EventSource('/stream');
+    
+    evtSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      currentEl.textContent = formatTime(data.currentSession);
+      todayEl.textContent = formatTime(data.todayTotal);
+      totalEl.textContent = formatTime(data.allTimeTotal);
+    };
+
+    evtSource.onerror = function() {
+      // Connection lost, maybe server stopped
+      currentEl.style.color = '#ef4444'; // Red to indicate disconnect
+    };
+  </script>
+</body>
+</html>
