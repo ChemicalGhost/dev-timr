@@ -1,11 +1,14 @@
 {
   "name": "dev-timr",
-  "version": "1.0.0",
-  "description": "A CLI tool to track development time with a GUI timer.",
+  "version": "1.1.1",
+  "description": "A CLI tool to track development time with a GUI timer and cloud collaboration.",
   "main": "index.js",
   "bin": {
     "dev-timr": "./bin/index.js",
-    "dev-timr-init": "./bin/init.js"
+    "dev-timr-init": "./bin/init.js",
+    "dev-timr-login": "./bin/login.js",
+    "dev-timr-stats": "./bin/stats.js",
+    "dev-timr-migrate": "./bin/migrate.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,15 +17,21 @@
     "timer",
     "tracking",
     "development",
-    "cli"
+    "cli",
+    "collaboration",
+    "productivity"
   ],
   "author": "Allan Bezagrebere(@chemicalGhost)",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "chalk": "^5.3.0",
     "cross-spawn": "^7.0.3",
     "express": "^4.18.2",
+    "inquirer": "^9.2.12",
     "open": "^10.0.3",
+    "ora": "^7.0.1",
+    "uuid": "^9.0.0",
     "yargs": "^17.7.2"
   },
   "type": "module"
