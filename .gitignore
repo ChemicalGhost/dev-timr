@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 
+#Issue Resolution Files
+ISSUE_*_RESOLUTION.md
+SECURITY_ISSUES.md
+SECURITY.md
+
 # Logs
 *.log
 npm-debug.log*
@@ -31,9 +36,9 @@ build/
 .DS_Store
 Thumbs.db
 
-# Environment
+# Environment variables
+# NOTE: .env.example is committed as a template for self-hosted instances
 .env
-.env.example
 .env.local
 .env.*.local
 
@@ -41,5 +46,5 @@ Thumbs.db
 # package-lock.json
 # yarn.lock
 
-# Dev-timr data files (these are project-specific, not for the tool itself)
-# .dev-clock.json
+# Dev-timr data files (user-specific tracking data)
+.dev-clock.json

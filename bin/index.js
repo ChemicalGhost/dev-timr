@@ -107,11 +107,14 @@ async function runTracker(argv) {
     // Spawn the child process
     const child = spawnChild(fullCommandString);
 
-    // Handle exit signals
+    // Handle exit signals - use .then() to ensure sync completes before exit
     const cleanup = () => {
         console.log(chalk.yellow('\nStopping session...'));
-        endSession();
-        process.exit(0);
+        endSession().then(() => {
+            process.exit(0);
+        }).catch(() => {
+            process.exit(0);
+        });
     };
 
     process.on('SIGINT', cleanup);
@@ -119,8 +122,11 @@ async function runTracker(argv) {
 
     // If the child exits, we exit too
     child.on('exit', (code) => {
-        endSession();
-        process.exit(code);
+        endSession().then(() => {
+            process.exit(code);
+        }).catch(() => {
+            process.exit(code);
+        });
     });
 }
 

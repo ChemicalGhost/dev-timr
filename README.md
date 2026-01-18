@@ -106,19 +106,71 @@ npx dev-timr migrate
 | `dev-timr stats` | View stats for the current repository in terminal. |
 | `dev-timr stats --me` | View only your personal stats. |
 | `dev-timr migrate` | Upload local `.dev-clock.json` data to cloud. |
+| `dev-timr-setup` | Configure custom Supabase instance (self-hosting). |
+
+---
+
+## 🔒 Security & Self-Hosting
+
+### Security Model
+
+Dev-Timr uses enterprise-grade security:
+- **GitHub OAuth** for authentication (no passwords)
+- **Row Level Security (RLS)** on all database tables
+- **JWT tokens** with 7-day expiration
+- **Local file permissions** (0o600 on auth files)
+- **HTTPS-only** API communication
+
+All user data is isolated by Row Level Security policies. Users can only access their own sessions and team data for repositories they've contributed to.
+
+### Shared Instance (Default)
+
+By default, Dev-Timr uses a shared Supabase instance for easy collaboration:
+- ✅ Zero configuration required
+- ✅ Works with teams across organizations
+- ✅ Protected by RLS policies
+- ✅ Suitable for most users
+
+### Self-Hosted Instance
+
+For organizations requiring complete control:
+
+```bash
+# Run interactive setup
+npx dev-timr-setup
+
+# Or set environment variables
+export SUPABASE_URL=https://your-project.supabase.co
+export SUPABASE_ANON_KEY=your-anon-key
+export GITHUB_CLIENT_ID=your-github-client-id
+```
+
+**Benefits of self-hosting:**
+- Complete data control
+- Custom compliance requirements
+- Private network deployment
+- Custom retention policies
+
+See [SECURITY.md](SECURITY.md) for detailed self-hosting instructions, RLS policies, and security best practices.
 
 ---
 
 ## ❓ FAQ
 
-**Q: Do I need a Supabase account?**  
-A: No! The tool is pre-configured. Just log in with GitHub.
+**Q: Do I need a Supabase account?**
+A: No! The shared instance is pre-configured. Just log in with GitHub. You can optionally self-host your own instance using `dev-timr-setup`.
 
-**Q: Where is data stored?**  
-A: Data is securely stored in a Supabase PostgreSQL database, associated with your GitHub ID and Repository URL.
+**Q: Where is data stored?**
+A: Data is securely stored in a Supabase PostgreSQL database with Row Level Security. By default, it uses the shared instance. You can configure your own instance via environment variables or the setup command.
 
-**Q: Can I use it for private repos?**  
-A: Yes. The tool identifies repos by their git remote URL hash/owner. Data is visible to anyone authenticated who knows the repo name (or you can request a private instance setup).
+**Q: Can I use it for private repos?**
+A: Yes. The tool identifies repos by their git remote URL. Data is protected by RLS policies - you can only see your own data and team data for repos you've contributed to.
+
+**Q: How secure is the shared instance?**
+A: Very secure. Row Level Security ensures complete data isolation between users. Only authenticated users can access their own sessions and team data for repositories they've worked on. See [SECURITY.md](SECURITY.md) for details.
+
+**Q: Can I rotate the credentials?**
+A: Yes. The shared instance credentials are rotated periodically. For self-hosted instances, you have complete control over credential rotation.
 
 ---
 

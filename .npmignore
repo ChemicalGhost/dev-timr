@@ -1,0 +1,35 @@
+# Files/folders to exclude from npm package
+
+# Security documentation (internal only)
+SECURITY_ISSUES.md
+ISSUE_*_RESOLUTION.md
+docs/
+
+# Supabase Edge Functions (deployed separately)
+supabase/
+
+# Development files
+.env
+.env.*
+!.env.example
+
+# Local session data
+.dev-clock.json
+
+# Git
+.git/
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+
+# Tests (when added)
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Docs source (if any)
+*.md
+!README.md

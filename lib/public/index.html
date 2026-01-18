@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,10 +17,38 @@
       --danger: #ef4444;
       --success: #22c55e;
       --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      /* Glassmorphism settings */
+      --glass-blur: 10px;
+      --glass-opacity: 0.15;
+      --glass-border-opacity: 0.2;
+      /* Gradient colors - calculated from base */
+      --gradient-color-1: var(--bg-color);
+      --gradient-color-2: var(--bg-color);
+      --gradient-color-3: var(--bg-color);
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     body {
-      background-color: var(--bg-color);
+      background: linear-gradient(-45deg,
+          var(--gradient-color-1),
+          var(--gradient-color-2),
+          var(--gradient-color-3),
+          var(--gradient-color-1));
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
       color: var(--text-main);
       font-family: var(--font-family);
       margin: 0;
@@ -28,18 +57,23 @@
       padding: 2rem;
       min-height: 100vh;
       box-sizing: border-box;
+      transition: all 0.3s ease;
     }
 
     .container {
-      background-color: var(--card-bg);
+      background: linear-gradient(rgba(0, 0, 0, var(--glass-darkness, 0)), rgba(0, 0, 0, var(--glass-darkness, 0))), rgba(255, 255, 255, var(--glass-opacity));
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
       padding: 2rem;
       border-radius: 1rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
       width: 100%;
       max-width: 800px;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      position: relative;
     }
 
     /* Header & Timer */
@@ -78,14 +112,18 @@
     .queue-status {
       font-size: 0.8rem;
       color: var(--text-sub);
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       padding: 0.5rem 1rem;
       border-radius: 2rem;
       display: none;
       align-items: center;
       gap: 0.5rem;
     }
-    .queue-status.visible { display: flex; }
+
+    .queue-status.visible {
+      display: flex;
+    }
+
     .queue-dot {
       width: 8px;
       height: 8px;
@@ -103,6 +141,7 @@
       width: fit-content;
       margin-left: auto;
     }
+
     .toggle-btn {
       background: transparent;
       border: none;
@@ -113,10 +152,11 @@
       font-weight: 600;
       transition: all 0.2s;
     }
+
     .toggle-btn.active {
       background: var(--card-bg);
       color: var(--text-main);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
     /* Stats Grid */
@@ -125,17 +165,20 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
     }
+
     .stat-card {
-      background: rgba(255,255,255,0.03);
+      background: rgba(255, 255, 255, 0.03);
       padding: 1rem;
       border-radius: 0.5rem;
     }
+
     .stat-card h3 {
       font-size: 0.75rem;
       color: var(--text-sub);
       margin: 0;
       text-transform: uppercase;
     }
+
     .stat-card p {
       font-size: 1.5rem;
       font-weight: 600;
@@ -149,17 +192,20 @@
       gap: 1.5rem;
       margin-top: 1rem;
     }
+
     .chart-box {
-      background: rgba(255,255,255,0.03);
+      background: rgba(255, 255, 255, 0.03);
       padding: 1rem;
       border-radius: 0.5rem;
       position: relative;
     }
+
     .chart-box h3 {
       font-size: 0.9rem;
       margin: 0 0 1rem 0;
       color: var(--text-sub);
     }
+
     canvas {
       width: 100% !important;
       height: 200px !important;
@@ -173,19 +219,22 @@
       max-height: 200px;
       overflow-y: auto;
     }
+
     .team-member {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0.5rem;
       border-radius: 0.25rem;
-      background: rgba(255,255,255,0.02);
+      background: rgba(255, 255, 255, 0.02);
     }
+
     .member-info {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
+
     .avatar {
       width: 24px;
       height: 24px;
@@ -198,28 +247,440 @@
       color: #000;
       font-weight: bold;
     }
+
     .member-time {
       font-weight: 600;
       font-size: 0.9rem;
     }
 
     @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* Picture-in-Picture Mode */
+    .pip-container {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 280px;
+      background: linear-gradient(rgba(0, 0, 0, var(--glass-darkness, 0)), rgba(0, 0, 0, var(--glass-darkness, 0))), rgba(255, 255, 255, var(--glass-opacity));
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
+      border-radius: 50%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: move;
+    }
+
+    .pip-container.active {
+      display: flex;
+    }
+
+    body.pip-mode .container {
+      display: none;
+    }
+
+    body.pip-mode {
+      padding: 0;
+    }
+
+    .pip-ring {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+    }
+
+    .pip-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 8;
+    }
+
+    .pip-ring-progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .pip-content {
+      text-align: center;
+      z-index: 1;
+    }
+
+    .pip-task {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.25rem;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pip-timer {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .pip-today {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      margin-top: 0.5rem;
+    }
+
+    .pip-expand-btn {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .pip-expand-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+    }
+
+    .pip-expand-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .pip-toggle-btn {
+      /* position: absolute; */
+      bottom: 1rem;
+      left: 1rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .pip-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+    }
+
+    .pip-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+
+    .user-buttons {
+      display: flex;
+      gap: 0.5rem;
+      /* flex-basis: auto; */
+      justify-content: flex-end;
+    }
+
+    /* Settings Button */
+    .settings-btn {
+      /* position: absolute; */
+      bottom: 1rem;
+      right: 1rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .settings-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+      transform: rotate(45deg);
+    }
+
+    .settings-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      position: absolute;
+      top: 1rem;
+      right: 3.5rem;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      width: 260px;
+      z-index: 99;
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .settings-panel.open {
+      display: flex;
+    }
+
+    .settings-panel h4 {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .settings-panel h4 svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .setting-group label {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .setting-group input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .setting-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .setting-group input[type="color"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 32px;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .setting-group input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .setting-group input[type="color"]::-webkit-color-swatch {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+    }
+
+    .reset-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-sub);
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .reset-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
     }
   </style>
 </head>
+
 <body>
+  <!-- PiP Container -->
+  <div class="pip-container" id="pip-container">
+    <svg class="pip-ring" viewBox="0 0 260 260">
+      <circle class="pip-ring-bg" cx="130" cy="130" r="120" />
+      <circle class="pip-ring-progress" id="pip-ring-progress" cx="130" cy="130" r="120" stroke-dasharray="754"
+        stroke-dashoffset="754" />
+    </svg>
+    <div class="pip-content">
+      <div class="pip-task" id="pip-task">No Task</div>
+      <div class="pip-timer" id="pip-timer">00:00</div>
+      <div class="pip-today" id="pip-today">Today: 0m</div>
+    </div>
+    <button class="pip-expand-btn" onclick="togglePipMode()" title="Expand to full view">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+      </svg>
+    </button>
+  </div>
+
   <div class="container">
+    <div class="user-buttons">
+      <!-- PiP Toggle Button -->
+      <button class="pip-toggle-btn" onclick="togglePipMode()" title="Picture-in-Picture mode">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Outer screen -->
+          <rect x="3" y="3" width="18" height="14" rx="2" ry="2"></rect>
+          <!-- Inner PiP window -->
+          <rect x="13" y="9" width="8" height="6" rx="1" ry="1"></rect>
+        </svg>
+
+      </button>
+      <!-- Settings Button -->
+      <button class="settings-btn" onclick="toggleSettings()" title="Customize appearance">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+          </path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+          </path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel">
+      <h4>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01">
+          </path>
+        </svg>
+        Appearance
+      </h4>
+
+      <div class="setting-group">
+        <label>Background Color</label>
+        <input type="color" id="bg-color" value="#0f172a" oninput="updateBgColor(this.value)">
+      </div>
+
+      <div class="setting-group">
+        <label>Glass Blur: <span id="blur-value">10</span>px</label>
+        <input type="range" id="blur-slider" min="0" max="30" value="10" oninput="updateBlur(this.value)">
+      </div>
+
+      <div class="setting-group">
+        <label>Card Opacity: <span id="opacity-value">15</span>%</label>
+        <input type="range" id="opacity-slider" min="5" max="50" value="15" oninput="updateOpacity(this.value)">
+      </div>
+
+      <div class="setting-group">
+        <label>Card Darkness: <span id="darkness-value">0</span>%</label>
+        <input type="range" id="darkness-slider" min="0" max="80" value="0" oninput="updateDarkness(this.value)">
+      </div>
+
+      <div class="setting-group">
+        <label>Background Image URL</label>
+        <input type="text" id="bg-image" placeholder="https://example.com/image.jpg"
+          onchange="updateBgImage(this.value)"
+          style="width:100%;padding:0.5rem;border-radius:0.25rem;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:#fff;font-size:0.75rem;">
+        <button class="reset-btn" onclick="clearBgImage()"
+          style="margin-top:0.25rem;padding:0.25rem 0.5rem;font-size:0.65rem;">Clear Image</button>
+      </div>
+
+      <div class="setting-group">
+        <label style="display:flex;align-items:center;gap:0.5rem;">
+          <input type="checkbox" id="light-mode" onchange="toggleLightMode(this.checked)"
+            style="width:16px;height:16px;">
+          Light text mode (auto)
+        </label>
+      </div>
+
+      <button class="reset-btn" onclick="resetSettings()">Reset to Default</button>
+    </div>
     <div class="header">
       <div class="main-timer">
         <div class="task-label">
           <span id="task-name">No Task</span>
         </div>
-        <div id="current" class="timer-display">00:00:00</div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div id="current" class="timer-display">00:00:00</div>
+          <button id="pause-btn" onclick="togglePause()" title="Pause/Resume timer" style="
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+          ">
+            <svg id="pause-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+            </svg>
+            <svg id="play-icon" fill="currentColor" viewBox="0 0 24 24" width="24" height="24" style="display:none;">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+        </div>
       </div>
-      
+
       <div style="text-align: right; display: flex; flex-direction: column; gap: 1rem; align-items: flex-end;">
         <div id="queue-status" class="queue-status">
           <div class="queue-dot"></div>
@@ -256,25 +717,296 @@
       <div class="chart-box">
         <h3 id="secondary-title">Tasks</h3>
         <div id="task-view">
-            <canvas id="taskChart"></canvas>
+          <canvas id="taskChart"></canvas>
         </div>
         <div id="team-view" style="display: none;">
-            <div class="team-list" id="team-list">
-                <!-- Team members injected here -->
-            </div>
+          <div class="team-list" id="team-list">
+            <!-- Team members injected here -->
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Utils
+    // ============= SETTINGS =============
+    const DEFAULT_SETTINGS = {
+      bgColor: '#0f172a',
+      blur: 10,
+      opacity: 15
+    };
+
+    function toggleSettings() {
+      const panel = document.getElementById('settings-panel');
+      panel.classList.toggle('open');
+    }
+
+    function updateBgColor(color) {
+      // Generate gradient colors from base color
+      const hex = color.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+
+      // Create variations (lighter and shifted hue versions)
+      const lighter = `rgb(${Math.min(255, r + 30)}, ${Math.min(255, g + 20)}, ${Math.min(255, b + 40)})`;
+      const darker = `rgb(${Math.max(0, r - 20)}, ${Math.max(0, g - 10)}, ${Math.max(0, b + 20)})`;
+      const shifted = `rgb(${Math.max(0, r - 10)}, ${Math.min(255, g + 30)}, ${Math.min(255, b + 30)})`;
+
+      document.documentElement.style.setProperty('--gradient-color-1', color);
+      document.documentElement.style.setProperty('--gradient-color-2', lighter);
+      document.documentElement.style.setProperty('--gradient-color-3', shifted);
+
+      // Auto-detect if text should be light or dark
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      if (brightness > 128) {
+        // Light background - use dark text
+        document.getElementById('light-mode').checked = false;
+        toggleLightMode(false);
+      } else {
+        // Dark background - use light text
+        document.getElementById('light-mode').checked = true;
+        toggleLightMode(true);
+      }
+      saveSettings();
+    }
+
+    function updateBgImage(url) {
+      if (url && url.trim()) {
+        document.body.style.backgroundImage = `url(${url})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+      }
+      saveSettings();
+    }
+
+    function clearBgImage() {
+      document.getElementById('bg-image').value = '';
+      document.body.style.backgroundImage = '';
+      saveSettings();
+    }
+
+    function updateDarkness(value) {
+      document.documentElement.style.setProperty('--glass-darkness', value / 100);
+      document.getElementById('darkness-value').textContent = value;
+      saveSettings();
+    }
+
+    function toggleLightMode(isLight) {
+      const root = document.documentElement;
+      if (isLight) {
+        root.style.setProperty('--text-main', '#f8fafc');
+        root.style.setProperty('--text-sub', '#94a3b8');
+      } else {
+        root.style.setProperty('--text-main', '#1e293b');
+        root.style.setProperty('--text-sub', '#475569');
+      }
+      saveSettings();
+    }
+
+    function updateBlur(value) {
+      document.documentElement.style.setProperty('--glass-blur', value + 'px');
+      document.getElementById('blur-value').textContent = value;
+      saveSettings();
+    }
+
+    function updateOpacity(value) {
+      document.documentElement.style.setProperty('--glass-opacity', value / 100);
+      document.getElementById('opacity-value').textContent = value;
+      saveSettings();
+    }
+
+    function saveSettings() {
+      const settings = {
+        bgColor: document.getElementById('bg-color').value,
+        blur: document.getElementById('blur-slider').value,
+        opacity: document.getElementById('opacity-slider').value,
+        darkness: document.getElementById('darkness-slider').value,
+        bgImage: document.getElementById('bg-image').value,
+        lightMode: document.getElementById('light-mode').checked
+      };
+      // Save to server (file-based, persists across ports)
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      }).catch(err => console.error('Failed to save settings:', err));
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        const settings = await res.json();
+
+        if (settings && settings.bgColor) {
+          // Apply gradient using updateBgColor (skip auto text color)
+          document.getElementById('bg-color').value = settings.bgColor;
+          document.getElementById('blur-slider').value = settings.blur;
+          document.getElementById('opacity-slider').value = settings.opacity;
+          document.getElementById('blur-value').textContent = settings.blur;
+          document.getElementById('opacity-value').textContent = settings.opacity;
+
+          // Apply styles without triggering auto-detection
+          const hex = settings.bgColor.replace('#', '');
+          const r = parseInt(hex.substr(0, 2), 16);
+          const g = parseInt(hex.substr(2, 2), 16);
+          const b = parseInt(hex.substr(4, 2), 16);
+          const lighter = `rgb(${Math.min(255, r + 30)}, ${Math.min(255, g + 20)}, ${Math.min(255, b + 40)})`;
+          const shifted = `rgb(${Math.max(0, r - 10)}, ${Math.min(255, g + 30)}, ${Math.min(255, b + 30)})`;
+          document.documentElement.style.setProperty('--gradient-color-1', settings.bgColor);
+          document.documentElement.style.setProperty('--gradient-color-2', lighter);
+          document.documentElement.style.setProperty('--gradient-color-3', shifted);
+          document.documentElement.style.setProperty('--glass-blur', settings.blur + 'px');
+          document.documentElement.style.setProperty('--glass-opacity', settings.opacity / 100);
+
+          // Load darkness if set
+          if (settings.darkness !== undefined) {
+            document.getElementById('darkness-slider').value = settings.darkness;
+            document.getElementById('darkness-value').textContent = settings.darkness;
+            document.documentElement.style.setProperty('--glass-darkness', settings.darkness / 100);
+          }
+
+          // Load image if set
+          if (settings.bgImage) {
+            document.getElementById('bg-image').value = settings.bgImage;
+            updateBgImage(settings.bgImage);
+          }
+
+          // Load light mode preference
+          if (settings.lightMode !== undefined) {
+            document.getElementById('light-mode').checked = settings.lightMode;
+            toggleLightMode(settings.lightMode);
+          }
+        } else {
+          // Initialize default gradient
+          updateBgColor(DEFAULT_SETTINGS.bgColor);
+        }
+      } catch (err) {
+        console.error('Failed to load settings:', err);
+        // Fallback to defaults
+        updateBgColor(DEFAULT_SETTINGS.bgColor);
+      }
+    }
+
+    function resetSettings() {
+      // Reset gradient
+      updateBgColor(DEFAULT_SETTINGS.bgColor);
+      document.documentElement.style.setProperty('--glass-blur', DEFAULT_SETTINGS.blur + 'px');
+      document.documentElement.style.setProperty('--glass-opacity', DEFAULT_SETTINGS.opacity / 100);
+      document.documentElement.style.setProperty('--glass-darkness', 0);
+      // Update controls
+      document.getElementById('bg-color').value = DEFAULT_SETTINGS.bgColor;
+      document.getElementById('blur-slider').value = DEFAULT_SETTINGS.blur;
+      document.getElementById('opacity-slider').value = DEFAULT_SETTINGS.opacity;
+      document.getElementById('darkness-slider').value = 0;
+      document.getElementById('blur-value').textContent = DEFAULT_SETTINGS.blur;
+      document.getElementById('opacity-value').textContent = DEFAULT_SETTINGS.opacity;
+      document.getElementById('darkness-value').textContent = 0;
+      // Clear image
+      document.getElementById('bg-image').value = '';
+      document.body.style.backgroundImage = '';
+      // Reset light mode
+      document.getElementById('light-mode').checked = true;
+      // Clear settings on server
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      }).catch(err => console.error('Failed to clear settings:', err));
+    }
+
+    // Load settings on page load
+    loadSettings();
+
+    // Close settings when clicking outside
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('settings-panel');
+      const btn = document.querySelector('.settings-btn');
+      if (!panel.contains(e.target) && !btn.contains(e.target)) {
+        panel.classList.remove('open');
+      }
+    });
+
+    // ============= PIP MODE =============
+    let isPipMode = false;
+    const pipElements = {
+      container: document.getElementById('pip-container'),
+      timer: document.getElementById('pip-timer'),
+      task: document.getElementById('pip-task'),
+      today: document.getElementById('pip-today'),
+      ring: document.getElementById('pip-ring-progress')
+    };
+    const ringCircumference = 2 * Math.PI * 120; // r=120
+
+    function togglePipMode() {
+      isPipMode = !isPipMode;
+      document.body.classList.toggle('pip-mode', isPipMode);
+      pipElements.container.classList.toggle('active', isPipMode);
+    }
+
+    function updatePipDisplay(currentMs, todayMs, taskName) {
+      // Update timer (shorter format for PiP)
+      const totalSeconds = Math.floor(currentMs / 1000);
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      pipElements.timer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+      // Update task name
+      pipElements.task.textContent = taskName || 'No Task';
+
+      // Update today's total
+      const todayMins = Math.floor(todayMs / 60000);
+      const todayHrs = Math.floor(todayMins / 60);
+      if (todayHrs > 0) {
+        pipElements.today.textContent = `Today: ${todayHrs}h ${todayMins % 60}m`;
+      } else {
+        pipElements.today.textContent = `Today: ${todayMins}m`;
+      }
+
+      // Update ring progress (based on session progress, max 1 hour shown)
+      const progress = Math.min(currentMs / 3600000, 1); // cap at 1 hour
+      const offset = ringCircumference * (1 - progress);
+      pipElements.ring.style.strokeDashoffset = offset;
+    }
+
+    // ============= PAUSE/RESUME =============
+    let currentPauseState = false;
+
+    async function togglePause() {
+      const endpoint = currentPauseState ? '/api/resume' : '/api/pause';
+      try {
+        const res = await fetch(endpoint, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          currentPauseState = data.isPaused;
+          updatePauseUI(data.isPaused);
+        }
+      } catch (err) {
+        console.error('Failed to toggle pause:', err);
+      }
+    }
+
+    function updatePauseUI(isPaused) {
+      const pauseIcon = document.getElementById('pause-icon');
+      const playIcon = document.getElementById('play-icon');
+      const pauseBtn = document.getElementById('pause-btn');
+      const timerDisplay = document.getElementById('current');
+
+      pauseIcon.style.display = isPaused ? 'none' : 'block';
+      playIcon.style.display = isPaused ? 'block' : 'none';
+
+      // Visual feedback - dim timer when paused
+      timerDisplay.style.opacity = isPaused ? '0.5' : '1';
+      pauseBtn.title = isPaused ? 'Resume timer' : 'Pause timer';
+    }
+    // ============= UTILS =============
     const formatTime = (ms) => {
       const totalSeconds = Math.floor(ms / 1000);
       const h = Math.floor(totalSeconds / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
-      return h > 0 
+      return h > 0
         ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
         : `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
@@ -308,17 +1040,19 @@
     // Charts Config
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.borderColor = '#334155';
-    
+
     function initCharts() {
       // Daily Bar Chart
       dailyChart = new Chart(document.getElementById('dailyChart'), {
         type: 'bar',
-        data: { labels: [], datasets: [{ 
-          label: 'Hours', 
-          data: [], 
-          backgroundColor: '#38bdf8',
-          borderRadius: 4
-        }]},
+        data: {
+          labels: [], datasets: [{
+            label: 'Hours',
+            data: [],
+            backgroundColor: '#38bdf8',
+            borderRadius: 4
+          }]
+        },
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -331,61 +1065,80 @@
 
       // Task Pie Chart
       taskChart = new Chart(document.getElementById('taskChart'), {
-          type: 'doughnut',
-          data: { labels: [], datasets: [{ data: [], backgroundColor: [
-            '#38bdf8', '#818cf8', '#a78bfa', '#c084fc', '#e879f9'
-          ], borderWidth: 0 }]},
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            cutout: '70%'
-          }
+        type: 'doughnut',
+        data: {
+          labels: [], datasets: [{
+            data: [], backgroundColor: [
+              '#38bdf8', '#818cf8', '#a78bfa', '#c084fc', '#e879f9'
+            ], borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const ms = context.raw;
+                  const h = Math.floor(ms / 3600000);
+                  const m = Math.floor((ms % 3600000) / 60000);
+                  const s = Math.floor((ms % 60000) / 1000);
+                  if (h > 0) return `${context.label}: ${h}h ${m}m`;
+                  if (m > 0) return `${context.label}: ${m}m ${s}s`;
+                  return `${context.label}: ${s}s`;
+                }
+              }
+            }
+          },
+          cutout: '70%'
+        }
       });
     }
 
     // Data Fetching
     async function fetchData() {
-       const personal = isPersonalView ? 'true' : 'false';
-       
-       // 1. Daily Stats
-       try {
-           const res = await fetch(`/api/daily?personal=${personal}`);
-           const data = await res.json();
-           
-           dailyChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}));
-           dailyChart.data.datasets[0].data = data.map(d => d.ms / 3600000);
-           dailyChart.update();
-       } catch (e) {
-           console.error('Failed to fetch daily stats');
-       }
+      const personal = isPersonalView ? 'true' : 'false';
 
-       // 2. Secondary View (Tasks or Team)
-       if (isPersonalView) {
-           // Show Tasks
-           elements.taskView.style.display = 'block';
-           elements.teamView.style.display = 'none';
-           elements.secondaryTitle.textContent = 'Top Tasks';
+      // 1. Daily Stats
+      try {
+        const res = await fetch(`/api/daily?personal=${personal}`);
+        const data = await res.json();
 
-           try {
-               const res = await fetch(`/api/tasks?personal=true`);
-               const data = await res.json();
-               
-               taskChart.data.labels = data.slice(0, 5).map(d => d.name);
-               taskChart.data.datasets[0].data = data.slice(0, 5).map(d => d.ms);
-               taskChart.update();
-           } catch (e) {}
-       } else {
-           // Show Team
-           elements.taskView.style.display = 'none';
-           elements.teamView.style.display = 'block';
-           elements.secondaryTitle.textContent = 'Team Leaderboard';
+        dailyChart.data.labels = data.map(d => new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+        dailyChart.data.datasets[0].data = data.map(d => d.ms / 3600000);
+        dailyChart.update();
+      } catch (e) {
+        console.error('Failed to fetch daily stats');
+      }
 
-           try {
-               const res = await fetch(`/api/team`);
-               const data = await res.json();
-               
-               const html = data.map(member => `
+      // 2. Secondary View (Tasks or Team)
+      if (isPersonalView) {
+        // Show Tasks
+        elements.taskView.style.display = 'block';
+        elements.teamView.style.display = 'none';
+        elements.secondaryTitle.textContent = 'Top Tasks';
+
+        try {
+          const res = await fetch(`/api/tasks?personal=true`);
+          const data = await res.json();
+
+          taskChart.data.labels = data.slice(0, 5).map(d => d.name);
+          taskChart.data.datasets[0].data = data.slice(0, 5).map(d => d.ms);
+          taskChart.update();
+        } catch (e) { }
+      } else {
+        // Show Team
+        elements.taskView.style.display = 'none';
+        elements.teamView.style.display = 'block';
+        elements.secondaryTitle.textContent = 'Team Leaderboard';
+
+        try {
+          const res = await fetch(`/api/team`);
+          const data = await res.json();
+
+          const html = data.map(member => `
                    <div class="team-member">
                        <div class="member-info">
                            <div class="avatar" ${member.avatarUrl ? `style="background: url(${member.avatarUrl}) center/cover"` : ''}>
@@ -396,21 +1149,21 @@
                        <span class="member-time">${formatShort(member.totalMs)}</span>
                    </div>
                `).join('');
-               
-               document.getElementById('team-list').innerHTML = html || '<p style="color:var(--text-sub);text-align:center">No team data</p>';
-           } catch (e) {}
-       }
+
+          document.getElementById('team-list').innerHTML = html || '<p style="color:var(--text-sub);text-align:center">No team data</p>';
+        } catch (e) { }
+      }
     }
 
     // View Toggle
     window.setView = (personal) => {
-        isPersonalView = personal;
-        elements.toggles[0].classList.toggle('active', personal);
-        elements.toggles[1].classList.toggle('active', !personal);
-        fetchData();
-        // Since SSE only sends aggregate totals based on cache which might be mixed
-        // we might want to fetch displayed totals from API if in Team view
-        // But for simplicity, SSE updates "Today/Total" which are aggregates
+      isPersonalView = personal;
+      elements.toggles[0].classList.toggle('active', personal);
+      elements.toggles[1].classList.toggle('active', !personal);
+      fetchData();
+      // Since SSE only sends aggregate totals based on cache which might be mixed
+      // we might want to fetch displayed totals from API if in Team view
+      // But for simplicity, SSE updates "Today/Total" which are aggregates
     };
 
     // Initialization
@@ -420,34 +1173,43 @@
 
     // SSE Stream
     const evtSource = new EventSource('/stream');
-    evtSource.onmessage = function(event) {
+    evtSource.onmessage = function (event) {
       const data = JSON.parse(event.data);
-      
+
       // Update Realtime Timer
       elements.current.textContent = formatTime(data.currentSession);
-      elements.taskName.textContent = data.taskName || 'No Task';
-      
+      elements.taskName.textContent = "Task: " + data.taskName || 'No Task';
+
       // Update Queue Status
       if (data.queued > 0) {
-          elements.queueStatus.classList.add('visible');
-          elements.queueCount.textContent = `${data.queued} Sync Pending`;
+        elements.queueStatus.classList.add('visible');
+        elements.queueCount.textContent = `${data.queued} Sync Pending`;
       } else {
-          elements.queueStatus.classList.remove('visible');
+        elements.queueStatus.classList.remove('visible');
       }
 
       // Update Totals (Note: In a real team app, you'd fetch team totals separately 
       // as high-freq SSE for team data is expensive. Here we assume SSE sends 
       // relevant totals based on server side caching or we just use it for local feedback)
       // For now, let's just update based on the stream data which is "Local + Cached Cloud"
-      
+
       elements.today.textContent = formatShort(data.todayTotal);
       elements.week.textContent = formatShort(data.weekTotal);
       elements.total.textContent = formatShort(data.allTimeTotal);
+
+      // Sync pause state from server
+      if (data.isPaused !== currentPauseState) {
+        currentPauseState = data.isPaused;
+        updatePauseUI(data.isPaused);
+      }
+      // Update PiP display
+      updatePipDisplay(data.currentSession, data.todayTotal, data.taskName);
     };
-    
-    evtSource.onerror = function() {
-        elements.current.style.color = 'var(--danger)';
+
+    evtSource.onerror = function () {
+      elements.current.style.color = 'var(--danger)';
     };
   </script>
 </body>
+
 </html>
