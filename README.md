@@ -24,6 +24,8 @@ npx dev-timr login
 Simply put `npx dev-timr` in front of your usual command.
 ```bash
 npx dev-timr "npm run dev"
+# or
+npx dev-timr npm run dev
 ```
 *   **Prompt:** You'll be asked to name your task (e.g., "Fixing Auth Bug").
 *   **GUI:** A beautiful dashboard opens in your browser showing real-time stats.
@@ -117,9 +119,13 @@ npx dev-timr migrate
 Dev-Timr uses enterprise-grade security:
 - **GitHub OAuth** for authentication (no passwords)
 - **Row Level Security (RLS)** on all database tables
+- **AES-256-GCM encryption** for local token storage
+- **PBKDF2 key derivation** (100,000 iterations) for encryption keys
 - **JWT tokens** with 7-day expiration
 - **Local file permissions** (0o600 on auth files)
 - **HTTPS-only** API communication
+- **Rate limiting** on local GUI server
+- **Input validation** on all user inputs
 
 All user data is isolated by Row Level Security policies. Users can only access their own sessions and team data for repositories they've contributed to.
 

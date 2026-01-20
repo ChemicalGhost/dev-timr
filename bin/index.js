@@ -19,14 +19,40 @@ process.on('uncaughtException', (err) => {
     process.exit(1);
 });
 
+/**
+ * Validate command arguments for dangerous shell metacharacters
+ * Defense-in-depth: even though tracker.js uses shell-quote parsing,
+ * we reject obviously malicious input at the entry point
+ */
+const SHELL_METACHARACTERS = /[;&|`$(){}[\]<>!\\]/;
+
+function validateCommand(args) {
+    if (!args || args.length === 0) {
+        return [];
+    }
+
+    const fullCommand = args.join(' ');
+
+    // Check for dangerous shell metacharacters
+    if (SHELL_METACHARACTERS.test(fullCommand)) {
+        console.error(chalk.red('Error: Command contains disallowed shell characters.'));
+        console.error(chalk.yellow('Shell operators (;, &, |, $, etc.) are not supported for security reasons.'));
+        console.error(chalk.gray('If you need to run complex commands, create a script and run that instead.'));
+        process.exit(1);
+    }
+
+    return args;
+}
+
 async function runTracker(argv) {
-    if (!argv.command || argv.command.length === 0) {
+    const command = validateCommand(argv.command);
+    if (command.length === 0) {
         console.error(chalk.red('Error: No command provided to run.'));
         console.log(chalk.yellow('Usage: dev-timr "npm run dev"'));
         process.exit(1);
     }
 
-    const fullCommandString = argv.command.join(' ');
+    const fullCommandString = command.join(' ');
 
     // Start session immediately
     startSession();
