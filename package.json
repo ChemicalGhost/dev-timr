@@ -1,6 +1,6 @@
 {
   "name": "dev-timr",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A CLI tool to track development time with a GUI timer and cloud collaboration.",
   "main": "index.js",
   "bin": {
