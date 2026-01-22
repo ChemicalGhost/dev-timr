@@ -1181,8 +1181,11 @@
     let serverIsPaused = false;
 
     // Client-side timer update (runs every 100ms for smooth display)
+    let clientTimerInterval = null;
+    let serverConnected = false;
+
     function updateClientTimer() {
-      if (serverIsPaused) return;
+      if (serverIsPaused || !serverConnected) return;
       
       // Calculate elapsed time since last server update
       const elapsed = Date.now() - lastServerTimestamp;
@@ -1201,11 +1204,12 @@
     }
 
     // Start client-side timer (100ms for smooth updates)
-    setInterval(updateClientTimer, 100);
+    clientTimerInterval = setInterval(updateClientTimer, 100);
 
     const evtSource = new EventSource('/stream');
     evtSource.onmessage = function (event) {
       const data = JSON.parse(event.data);
+      serverConnected = true;
 
       // Sync server time baseline (used for interpolation)
       lastServerTime = data.currentSession;
@@ -1235,7 +1239,11 @@
     };
 
     evtSource.onerror = function () {
+      // Server disconnected - stop timer interpolation
+      serverConnected = false;
       elements.current.style.color = 'var(--danger)';
+      elements.taskName.textContent = 'Session Ended';
+      pipElements.task.textContent = 'Disconnected';
     };
   </script>
 </body>
