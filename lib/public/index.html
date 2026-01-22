@@ -1171,14 +1171,53 @@
     fetchData(); // Initial load
     setInterval(fetchData, 60000); // 1-minute refresh for graphs
 
-    // SSE Stream
+    // SSE Stream with client-side timer interpolation
+    let lastServerTime = 0;
+    let lastServerTimestamp = Date.now();
+    let serverTodayTotal = 0;
+    let serverWeekTotal = 0;
+    let serverAllTimeTotal = 0;
+    let serverTaskName = 'No Task';
+    let serverIsPaused = false;
+
+    // Client-side timer update (runs every 100ms for smooth display)
+    function updateClientTimer() {
+      if (serverIsPaused) return;
+      
+      // Calculate elapsed time since last server update
+      const elapsed = Date.now() - lastServerTimestamp;
+      const currentSession = lastServerTime + elapsed;
+      
+      // Update timer display
+      elements.current.textContent = formatTime(currentSession);
+      
+      // Update totals with interpolated current session
+      elements.today.textContent = formatShort(serverTodayTotal + elapsed);
+      elements.week.textContent = formatShort(serverWeekTotal + elapsed);
+      elements.total.textContent = formatShort(serverAllTimeTotal + elapsed);
+      
+      // Update PiP display
+      updatePipDisplay(currentSession, serverTodayTotal + elapsed, serverTaskName);
+    }
+
+    // Start client-side timer (100ms for smooth updates)
+    setInterval(updateClientTimer, 100);
+
     const evtSource = new EventSource('/stream');
     evtSource.onmessage = function (event) {
       const data = JSON.parse(event.data);
 
-      // Update Realtime Timer
-      elements.current.textContent = formatTime(data.currentSession);
-      elements.taskName.textContent = "Task: " + data.taskName || 'No Task';
+      // Sync server time baseline (used for interpolation)
+      lastServerTime = data.currentSession;
+      lastServerTimestamp = Date.now();
+      serverTodayTotal = data.todayTotal - data.currentSession; // Base without current session
+      serverWeekTotal = data.weekTotal - data.currentSession;
+      serverAllTimeTotal = data.allTimeTotal - data.currentSession;
+      serverTaskName = data.taskName || 'No Task';
+      serverIsPaused = data.isPaused;
+
+      // Update task name
+      elements.taskName.textContent = "Task: " + (data.taskName || 'No Task');
 
       // Update Queue Status
       if (data.queued > 0) {
@@ -1188,22 +1227,11 @@
         elements.queueStatus.classList.remove('visible');
       }
 
-      // Update Totals (Note: In a real team app, you'd fetch team totals separately 
-      // as high-freq SSE for team data is expensive. Here we assume SSE sends 
-      // relevant totals based on server side caching or we just use it for local feedback)
-      // For now, let's just update based on the stream data which is "Local + Cached Cloud"
-
-      elements.today.textContent = formatShort(data.todayTotal);
-      elements.week.textContent = formatShort(data.weekTotal);
-      elements.total.textContent = formatShort(data.allTimeTotal);
-
       // Sync pause state from server
       if (data.isPaused !== currentPauseState) {
         currentPauseState = data.isPaused;
         updatePauseUI(data.isPaused);
       }
-      // Update PiP display
-      updatePipDisplay(data.currentSession, data.todayTotal, data.taskName);
     };
 
     evtSource.onerror = function () {
